@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "npx --package typescript tsc -p scripts/tsconfig.build.json",
-    "build": "node .build/scripts/optimize-images.js && next build",
+    "build": "next build",
+    "optimize-images": "npx tsc -p scripts/tsconfig.build.json && node .build/scripts/optimize-images.js",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

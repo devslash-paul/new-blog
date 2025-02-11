@@ -29,11 +29,7 @@ describe('imageLoader', () => {
     });
   });
 
-  describe('local images in development', () => {
-    beforeEach(() => {
-      process.env = { ...process.env, NODE_ENV: 'development' };
-    });
-
+  describe('local images', () => {
     it('should handle regular images', () => {
       const result = imageLoader({
         src: '/images/test.png',
@@ -59,39 +55,6 @@ describe('imageLoader', () => {
         quality: 75,
       });
       expect(result).toBe('/dist/images/test.webp?w=800&q=75');
-    });
-  });
-
-  describe('local images in production', () => {
-    beforeEach(() => {
-      process.env = { ...process.env, NODE_ENV: 'production' };
-    });
-
-    it('should handle regular images with basePath', () => {
-      const result = imageLoader({
-        src: '/images/test.png',
-        width: 800,
-        quality: 75,
-      });
-      expect(result).toBe('/new-blog/dist/images/test.webp?w=800&q=75');
-    });
-
-    it('should handle .keep.png images with basePath', () => {
-      const result = imageLoader({
-        src: '/images/test.keep.png',
-        width: 800,
-        quality: 75,
-      });
-      expect(result).toBe('/new-blog/dist/images/test.keep.png');
-    });
-
-    it('should handle images without leading slash with basePath', () => {
-      const result = imageLoader({
-        src: 'images/test.jpg',
-        width: 800,
-        quality: 75,
-      });
-      expect(result).toBe('/new-blog/dist/images/test.webp?w=800&q=75');
     });
   });
 

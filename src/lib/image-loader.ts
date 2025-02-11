@@ -9,8 +9,6 @@ export default function imageLoader({ src, width, quality }: ImageLoaderProps) {
   }
 
   // For local images
-  const basePath = process.env.NODE_ENV === 'production' ? '/new-blog' : '';
-  
   // Extract the path parts
   const srcPath = src.startsWith('/') ? src.slice(1) : src;
   const ext = srcPath.split('.').pop()?.toLowerCase() || '';
@@ -18,12 +16,12 @@ export default function imageLoader({ src, width, quality }: ImageLoaderProps) {
 
   // If it's a keep.png file, use it from the dist directory as is
   if (isKeepPng && ext === 'png') {
-    return `${basePath}/dist/${srcPath}`;
+    return `/dist/${srcPath}`;
   }
 
   // For all other images, use the WebP version from dist
   const pathWithoutExt = srcPath.replace(/\.[^/.]+$/, '');
-  const webpPath = `${basePath}/dist/${pathWithoutExt}.webp`;
+  const webpPath = `/dist/${pathWithoutExt}.webp`;
 
   // Add any width/quality parameters
   const params = [`w=${width}`];

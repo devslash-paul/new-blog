@@ -1,6 +1,6 @@
 [build]
-command = "npm install ts-node && npm run build"
-pages_build_output_dir = "out"
+command = "npm run build"
+output_dir = "out"
 
 [build.environment]
 NODE_VERSION = "20.11.0" 

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "tsc -p scripts/tsconfig.build.json",
-    "build": "node .build/optimize-images.js && next build",
+    "build": "node .build/scripts/optimize-images.js && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

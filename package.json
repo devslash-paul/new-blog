@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "node --import tsx scripts/optimize-images.ts && next build",
+    "prebuild": "tsc scripts/optimize-images.ts --outDir .build --module ESNext",
+    "build": "node .build/optimize-images.js && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",

@@ -1,0 +1,7 @@
+---
+description: Prevent usage of TypeScript ignore directives to ensure proper type checking
+globs: ["**/*.ts", "**/*.tsx"]
+---
+
+deny_pattern = "@ts-ignore|@ts-nocheck"
+deny_message = "TypeScript ignore directives are not allowed. Please fix type errors properly instead of ignoring them." 

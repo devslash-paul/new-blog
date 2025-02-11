@@ -1,10 +1,10 @@
 import sharp from 'sharp';
-import fs from 'fs/promises';
-import path from 'path';
+import * as fs from 'fs/promises';
+import { join, extname, basename, relative } from 'path';
 import type { Dirent } from 'fs';
 
-const PUBLIC_DIR = path.join(process.cwd(), 'public');
-const DIST_DIR = path.join(process.cwd(), 'public/dist');
+const PUBLIC_DIR = join(process.cwd(), 'public');
+const DIST_DIR = join(process.cwd(), 'public/dist');
 const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.webp', '.png'] as const;
 type ImageExtension = typeof IMAGE_EXTENSIONS[number];
 
@@ -52,15 +52,15 @@ export async function optimizeImages(directory: string): Promise<void> {
 }
 
 async function processFile(directory: string, file: Dirent): Promise<void> {
-  const fullPath = path.join(directory, file.name);
+  const fullPath = join(directory, file.name);
   
   if (file.isDirectory()) {
     await optimizeImages(fullPath);
     return;
   }
 
-  const ext = path.extname(file.name).toLowerCase() as ImageExtension;
-  const nameWithoutExt = path.basename(file.name, ext);
+  const ext = extname(file.name).toLowerCase() as ImageExtension;
+  const nameWithoutExt = basename(file.name, ext);
   
   // Skip non-image files
   if (!IMAGE_EXTENSIONS.includes(ext)) {
@@ -84,10 +84,10 @@ async function processFile(directory: string, file: Dirent): Promise<void> {
 }
 
 async function copyPngFile(directory: string, fileName: string, fullPath: string): Promise<void> {
-  const relativePath = path.relative(PUBLIC_DIR, directory);
-  const distDir = path.join(DIST_DIR, relativePath);
+  const relativePath = relative(PUBLIC_DIR, directory);
+  const distDir = join(DIST_DIR, relativePath);
   await ensureDirectoryExists(distDir);
-  const distPath = path.join(distDir, fileName);
+  const distPath = join(distDir, fileName);
   await fs.copyFile(fullPath, distPath);
   console.log(`Copied PNG to dist: ${distPath}`);
 }
@@ -103,13 +103,13 @@ async function convertToWebP(
     await image.metadata(); // Ensure image is valid
 
     // Create dist path maintaining directory structure
-    const relativePath = path.relative(PUBLIC_DIR, directory);
-    const distDir = path.join(DIST_DIR, relativePath);
+    const relativePath = relative(PUBLIC_DIR, directory);
+    const distDir = join(DIST_DIR, relativePath);
     await ensureDirectoryExists(distDir);
 
     // Convert to WebP
     const webpName = `${nameWithoutExt}.webp`;
-    const webpPath = path.join(distDir, webpName);
+    const webpPath = join(distDir, webpName);
     
     const options: WebPOptions = {
       quality: 80,
@@ -125,18 +125,4 @@ async function convertToWebP(
     console.error(`Error processing ${fullPath}:`, error instanceof Error ? error.message : error);
     console.log('Skipping file due to conversion error');
   }
-}
-
-// Only run if this is the main module
-if (require.main === module) {
-  cleanDistDirectory()
-    .then(() => optimizeImages(PUBLIC_DIR))
-    .then(() => {
-      console.log('\nImage optimization complete!');
-      console.log(`Optimized images available in: ${DIST_DIR}`);
-    })
-    .catch((error) => {
-      console.error('Fatal error:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    });
 } 

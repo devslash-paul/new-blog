@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { Dirent, PathLike, RmOptions } from 'fs';
+import { Dirent } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import { jest } from '@jest/globals';
@@ -12,10 +12,10 @@ jest.mock('sharp');
 jest.spyOn(process, 'cwd').mockReturnValue('/test-root');
 
 // Import after mocking
-const { optimizeImages, cleanDistDirectory } = require('../optimize-images');
+import { optimizeImages, cleanDistDirectory } from '../optimize-images';
 
 // Mock types
-type MockedFunction<T extends (...args: any) => any> = jest.MockedFunction<T>;
+type MockedFunction<T> = jest.MockedFunction<T>;
 
 // Store original NODE_ENV
 const originalEnv = process.env.NODE_ENV;
@@ -66,8 +66,8 @@ describe('Image Optimization', () => {
     (fs.mkdir as MockedFunction<typeof fs.mkdir>).mockResolvedValue(undefined);
 
     // Mock fs.rm to capture path argument
-    const rmMock = jest.fn<(path: PathLike, options?: RmOptions) => Promise<void>>()
-      .mockImplementation((path: PathLike, options?: RmOptions) => Promise.resolve());
+    const rmMock = jest.fn<() => Promise<void>>()
+      .mockImplementation(() => Promise.resolve());
     (fs.rm as unknown) = rmMock;
 
     // Mock sharp instance methods

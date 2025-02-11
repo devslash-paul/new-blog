@@ -3,6 +3,7 @@ import { Dirent } from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import { jest } from '@jest/globals';
+import type { PathLike } from 'fs';
 
 // Mock the external dependencies
 jest.mock('fs/promises');
@@ -13,9 +14,6 @@ jest.spyOn(process, 'cwd').mockReturnValue('/test-root');
 
 // Import after mocking
 import { optimizeImages, cleanDistDirectory } from '../optimize-images';
-
-// Mock types
-type MockedFunction<T extends (...args: unknown[]) => unknown> = jest.MockedFunction<T>;
 
 // Store original NODE_ENV
 const originalEnv = process.env.NODE_ENV;
@@ -57,18 +55,16 @@ describe('Image Optimization', () => {
       { name: 'test.jpg', isDirectory: () => false, isFile: () => true } as Dirent,
       { name: 'test.webp', isDirectory: () => false, isFile: () => true } as Dirent,
     ];
-    (fs.readdir as MockedFunction<typeof fs.readdir>).mockResolvedValue(mockDirents);
+    jest.mocked(fs.readdir).mockResolvedValue(mockDirents);
 
     // Mock fs.access to simulate directory exists
-    (fs.access as MockedFunction<typeof fs.access>).mockResolvedValue();
+    jest.mocked(fs.access).mockResolvedValue();
 
     // Mock fs.mkdir to simulate directory creation
-    (fs.mkdir as MockedFunction<typeof fs.mkdir>).mockResolvedValue(undefined);
+    jest.mocked(fs.mkdir).mockResolvedValue(undefined);
 
     // Mock fs.rm to capture path argument
-    const rmMock = jest.fn<() => Promise<void>>()
-      .mockImplementation(() => Promise.resolve());
-    (fs.rm as unknown) = rmMock;
+    jest.mocked(fs.rm).mockResolvedValue();
 
     // Mock sharp instance methods
     const mockToFile = jest.fn<() => Promise<sharp.OutputInfo>>()
@@ -84,7 +80,7 @@ describe('Image Optimization', () => {
       toFile: mockToFile,
       metadata: mockMetadata,
     };
-    (sharp as unknown as jest.Mock).mockReturnValue(mockSharpInstance);
+    jest.mocked(sharp).mockReturnValue(mockSharpInstance);
   });
 
   afterEach(() => {
@@ -103,7 +99,7 @@ describe('Image Optimization', () => {
     });
 
     it('should handle errors gracefully', async () => {
-      (fs.rm as MockedFunction<typeof fs.rm>).mockRejectedValue(new Error('Test error'));
+      jest.mocked(fs.rm).mockRejectedValue(new Error('Test error'));
       await expect(cleanDistDirectory()).resolves.not.toThrow();
     });
   });
@@ -114,7 +110,7 @@ describe('Image Optimization', () => {
       const mockPngFiles = [
         { name: 'test.png', isDirectory: () => false, isFile: () => true } as Dirent,
       ];
-      (fs.readdir as MockedFunction<typeof fs.readdir>).mockResolvedValue(mockPngFiles);
+      jest.mocked(fs.readdir).mockResolvedValue(mockPngFiles);
 
       await optimizeImages('test-dir');
       
@@ -128,7 +124,7 @@ describe('Image Optimization', () => {
       const mockKeepFiles = [
         { name: 'test.keep.png', isDirectory: () => false, isFile: () => true } as Dirent,
       ];
-      (fs.readdir as MockedFunction<typeof fs.readdir>).mockResolvedValue(mockKeepFiles);
+      jest.mocked(fs.readdir).mockResolvedValue(mockKeepFiles);
 
       await optimizeImages('test-dir');
       
@@ -146,7 +142,7 @@ describe('Image Optimization', () => {
       const mockWebpFiles = [
         { name: 'test.webp', isDirectory: () => false, isFile: () => true } as Dirent,
       ];
-      (fs.readdir as MockedFunction<typeof fs.readdir>).mockResolvedValue(mockWebpFiles);
+      jest.mocked(fs.readdir).mockResolvedValue(mockWebpFiles);
 
       await optimizeImages('test-dir');
       
@@ -166,10 +162,10 @@ describe('Image Optimization', () => {
       ];
       
       // Mock readdir to handle both the main directory and subdirectory
-      const readdirMock = jest.fn<() => Promise<Dirent[]>>()
+      const readdirMock = jest.fn()
         .mockResolvedValueOnce(mockSubdirContents)  // First call returns directory
         .mockResolvedValueOnce(mockSubdirFiles);    // Second call returns only files
-      (fs.readdir as unknown) = readdirMock;
+      jest.mocked(fs.readdir).mockImplementation(readdirMock);
 
       await optimizeImages('test-dir');
       
@@ -192,7 +188,7 @@ describe('Image Optimization', () => {
         toFile: mockToFile,
         metadata: mockMetadata,
       };
-      (sharp as unknown as jest.Mock).mockReturnValue(mockSharpInstance);
+      jest.mocked(sharp).mockReturnValue(mockSharpInstance);
 
       await expect(optimizeImages('test-dir')).resolves.not.toThrow();
     });
@@ -211,13 +207,13 @@ describe('Image Optimization', () => {
         toFile: mockToFile,
         metadata: mockMetadata,
       };
-      (sharp as unknown as jest.Mock).mockReturnValue(mockSharpInstance);
+      jest.mocked(sharp).mockReturnValue(mockSharpInstance);
 
       // Mock readdir to return only PNG files
       const mockPngFiles = [
         { name: 'test.png', isDirectory: () => false, isFile: () => true } as Dirent,
       ];
-      (fs.readdir as MockedFunction<typeof fs.readdir>).mockResolvedValue(mockPngFiles);
+      jest.mocked(fs.readdir).mockResolvedValue(mockPngFiles);
 
       await optimizeImages('test-dir');
       

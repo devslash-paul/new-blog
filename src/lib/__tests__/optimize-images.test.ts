@@ -15,7 +15,7 @@ jest.spyOn(process, 'cwd').mockReturnValue('/test-root');
 import { optimizeImages, cleanDistDirectory } from '../optimize-images';
 
 // Mock types
-type MockedFunction<T> = jest.MockedFunction<T>;
+type MockedFunction<T extends (...args: any[]) => any> = jest.MockedFunction<T>;
 
 // Store original NODE_ENV
 const originalEnv = process.env.NODE_ENV;
